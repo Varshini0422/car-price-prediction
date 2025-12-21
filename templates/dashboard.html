@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-4">📊 Analytics Dashboard</h3>
+
+<!-- =======================
+     KPI CARDS
+======================= -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card kpi-card text-center">
+            <h6 class="text-muted">Total Predictions</h6>
+            <h3>{{ total_count }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card kpi-card text-center">
+            <h6 class="text-muted">Average Price</h6>
+            <h3>₹ {{ avg_price }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card kpi-card text-center">
+            <h6 class="text-muted">Maximum Price</h6>
+            <h3>₹ {{ max_price }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card kpi-card text-center">
+            <h6 class="text-muted">Minimum Price</h6>
+            <h3>₹ {{ min_price }}</h3>
+        </div>
+    </div>
+
+</div>
+
+<!-- =======================
+     CHARTS GRID
+======================= -->
+<div class="row g-4">
+
+    <div class="col-md-6">
+        <div class="card p-3 dashboard-card">
+            <canvas id="yearChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-3 dashboard-card">
+            <canvas id="kmsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 dashboard-card">
+            <canvas id="fuelChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 dashboard-card">
+            <canvas id="transChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 dashboard-card">
+            <canvas id="countChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- =======================
+     CHART.JS
+======================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* Avg Price vs Year */
+new Chart(document.getElementById("yearChart"), {
+    type: "line",
+    data: {
+        labels: {{ year_labels | tojson }},
+        datasets: [{
+            label: "Avg Price vs Year",
+            data: {{ year_prices | tojson }},
+            borderWidth: 2,
+            tension: 0.4
+        }]
+    }
+});
+
+/* Price vs Kilometers */
+new Chart(document.getElementById("kmsChart"), {
+    type: "scatter",
+    data: {
+        datasets: [{
+            label: "Price vs Kilometers",
+            data: {{ kms_points | tojson }}
+        }]
+    }
+});
+
+/* Fuel Distribution */
+const fuelMap = {0:"Petrol",1:"Diesel",2:"CNG"};
+new Chart(document.getElementById("fuelChart"), {
+    type: "bar",
+    data: {
+        labels: {{ fuel_labels | tojson }}.map(f => fuelMap[f]),
+        datasets: [{
+            label: "Count by Fuel",
+            data: {{ fuel_counts | tojson }}
+        }]
+    }
+});
+
+/* Transmission Distribution */
+const transMap = {0:"Manual",1:"Automatic"};
+new Chart(document.getElementById("transChart"), {
+    type: "bar",
+    data: {
+        labels: {{ trans_labels | tojson }}.map(t => transMap[t]),
+        datasets: [{
+            label: "Count by Transmission",
+            data: {{ trans_counts | tojson }}
+        }]
+    }
+});
+
+/* Total Prediction Count */
+new Chart(document.getElementById("countChart"), {
+    type: "doughnut",
+    data: {
+        labels: ["Predictions"],
+        datasets: [{
+            data: [{{ total_count }}]
+        }]
+    }
+});
+</script>
+
+{% endblock %}

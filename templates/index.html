@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="predict-page">
+
+    <div class="text-center mb-5">
+        <h2 class="fw-bold mb-2">🔍 Predict Your Car’s Market Value</h2>
+        <p class="text-muted">
+            Enter vehicle details to receive an AI-powered resale price estimate
+        </p>
+    </div>
+
+    <div class="card predict-card mx-auto">
+
+        <form method="POST" id="predictForm" novalidate>
+
+            <div class="row g-4">
+
+                <!-- CAR NAME -->
+                <div class="col-md-12">
+                    <label class="form-label">Car Name</label>
+                    <select name="car_name" class="form-select" id="carName">
+                        <option value="">Select Car</option>
+                        {% for car in car_names %}
+                            <option value="{{ car }}">{{ car }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="error-text" id="carNameError"></div>
+                </div>
+
+                <!-- YEAR -->
+                <div class="col-md-6">
+                    <label class="form-label">Manufacturing Year</label>
+                    <input
+                        type="number"
+                        name="year"
+                        id="year"
+                        class="form-control"
+                        min="1992"
+                        max="2020"
+                        placeholder="e.g. 2016"
+                    >
+                    <div class="input-hint">Between 1992 and 2020</div>
+                    <div class="error-text" id="yearError"></div>
+                </div>
+
+                <!-- KMS -->
+                <div class="col-md-6">
+                    <label class="form-label">Kilometers Driven</label>
+                    <input
+                        type="number"
+                        name="kms"
+                        id="kms"
+                        class="form-control"
+                        min="1"
+                        max="806599"
+                        placeholder="e.g. 45000"
+                    >
+                    <div class="input-hint">1 – 806,599 km</div>
+                    <div class="error-text" id="kmsError"></div>
+                </div>
+
+                <!-- FUEL -->
+                <div class="col-md-4">
+                    <label class="form-label">Fuel Type</label>
+                    <select name="fuel" class="form-select">
+                        <option value="0">Petrol</option>
+                        <option value="1">Diesel</option>
+                        <option value="2">CNG</option>
+                    </select>
+                </div>
+
+                <!-- SELLER -->
+                <div class="col-md-4">
+                    <label class="form-label">Seller Type</label>
+                    <select name="seller" class="form-select">
+                        <option value="0">Dealer</option>
+                        <option value="1">Individual</option>
+                    </select>
+                </div>
+
+                <!-- TRANSMISSION -->
+                <div class="col-md-4">
+                    <label class="form-label">Transmission</label>
+                    <select name="transmission" class="form-select">
+                        <option value="0">Manual</option>
+                        <option value="1">Automatic</option>
+                    </select>
+                </div>
+
+                <!-- OWNER -->
+                <div class="col-md-6">
+                    <label class="form-label">Ownership</label>
+                    <select name="owner" class="form-select">
+                        <option value="0">First Owner</option>
+                        <option value="1">Second Owner</option>
+                        <option value="2">Third Owner</option>
+                        <option value="3">Fourth+</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="mt-5">
+                <button class="btn btn-predict w-100">
+                    🚗 Predict Price
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     LIVE VALIDATION SCRIPT
+========================= -->
+<script>
+const yearInput = document.getElementById("year");
+const kmsInput = document.getElementById("kms");
+const carNameInput = document.getElementById("carName");
+
+function validateYear() {
+    const year = Number(yearInput.value);
+    if (year < 1992 || year > 2020) {
+        yearInput.classList.add("is-invalid");
+        document.getElementById("yearError").innerText =
+            "Year must be between 1992 and 2020";
+        return false;
+    }
+    yearInput.classList.remove("is-invalid");
+    document.getElementById("yearError").innerText = "";
+    return true;
+}
+
+function validateKms() {
+    const kms = Number(kmsInput.value);
+    if (kms < 1 || kms > 806599) {
+        kmsInput.classList.add("is-invalid");
+        document.getElementById("kmsError").innerText =
+            "Kilometers must be between 1 and 806,599";
+        return false;
+    }
+    kmsInput.classList.remove("is-invalid");
+    document.getElementById("kmsError").innerText = "";
+    return true;
+}
+
+function validateCarName() {
+    if (!carNameInput.value) {
+        carNameInput.classList.add("is-invalid");
+        document.getElementById("carNameError").innerText =
+            "Please select a car";
+        return false;
+    }
+    carNameInput.classList.remove("is-invalid");
+    document.getElementById("carNameError").innerText = "";
+    return true;
+}
+
+yearInput.addEventListener("input", validateYear);
+kmsInput.addEventListener("input", validateKms);
+carNameInput.addEventListener("change", validateCarName);
+
+document.getElementById("predictForm").addEventListener("submit", function (e) {
+    if (!(validateYear() & validateKms() & validateCarName())) {
+        e.preventDefault();
+    }
+});
+</script>
+
+{% endblock %}

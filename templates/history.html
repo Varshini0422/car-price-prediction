@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- =======================
+         HEADER
+    ======================= -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">
+                <i class="fas fa-history me-2 text-primary"></i>
+                Prediction History
+            </h3>
+            <p class="text-muted mb-0">
+                View and manage your past predictions
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                Total: {{ data|length }}
+            </span>
+            <a href="/export-history" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-download me-1"></i> Export CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- =======================
+         FILTERS
+    ======================= -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input
+                type="text"
+                id="searchInput"
+                class="form-control"
+                placeholder="Search by car name, year, kms or price..."
+                onkeyup="filterTable()"
+            >
+        </div>
+
+        <div class="col-md-3">
+            <select id="yearFilter" class="form-select" onchange="filterTable()">
+                <option value="">All Years</option>
+                {% for y in data|map(attribute='car_year')|unique %}
+                <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- =======================
+         TABLE
+    ======================= -->
+    <div class="card p-4">
+
+        {% if data|length > 0 %}
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Car Name</th>
+                        <th>Year</th>
+                        <th>KMs Driven</th>
+                        <th>Predicted Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in data %}
+                    <tr data-year="{{ row.car_year }}">
+
+                        <td>
+                            <i class="far fa-calendar-alt me-2 text-muted"></i>
+                            {{ row.date }}
+                        </td>
+
+                        <td class="fw-semibold">
+                            {{ row.car_name }}
+                        </td>
+
+                        <td>
+                            {{ row.car_year }}
+                        </td>
+
+                        <td>
+                            {{ row.kms_driven }} km
+                        </td>
+
+                        <td>
+                            <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">
+                                ₹ {{ row.predicted_price | round(2) }}
+                            </span>
+                        </td>
+
+                        <!-- DELETE -->
+                        <td>
+                            <a
+                                href="/delete-prediction/{{ row.id }}"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this prediction?')"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+        {% else %}
+
+        <!-- EMPTY STATE -->
+        <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+            <h5 class="fw-semibold">No predictions yet</h5>
+            <p class="text-muted mb-4">
+                Start by predicting your car’s resale value
+            </p>
+            <a href="/predict" class="btn btn-primary">
+                Predict Now
+            </a>
+        </div>
+
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- =======================
+     SEARCH & FILTER SCRIPT
+======================= -->
+<script>
+function filterTable() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const year = document.getElementById("yearFilter").value;
+    const rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const rowYear = row.dataset.year;
+        const matchSearch = text.includes(search);
+        const matchYear = !year || rowYear === year;
+        row.style.display = (matchSearch && matchYear) ? "" : "none";
+    });
+}
+</script>
+
+{% endblock %}

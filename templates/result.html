@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+
+    <!-- =======================
+         RESULT CARD
+    ======================= -->
+    <div class="card p-5 text-center mx-auto" style="max-width:520px;">
+
+        <h2 class="fw-bold mb-3">💰 Estimated Car Price</h2>
+
+        <!-- Animated Price -->
+        <h1 class="price-animate">
+            ₹ <span id="price" data-price="{{ price }}">0</span>
+        </h1>
+
+        <p class="text-muted mb-4">
+            Based on current market trends & ML analysis
+        </p>
+
+        <!-- Confidence -->
+        <p class="fw-medium mb-3">
+            🤖 Model Confidence:
+            <span class="text-primary fw-bold">
+                {{ confidence }}%
+            </span>
+        </p>
+
+        <!-- Gauge Chart -->
+        <div class="mx-auto mb-4" style="max-width:320px;">
+            <canvas id="gaugeChart"></canvas>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-center gap-3">
+            <a href="/predict" class="btn btn-primary px-4">
+                New Prediction
+            </a>
+            <a href="/download-report" class="btn btn-outline-secondary px-4">
+                Download Report
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =======================
+     SCRIPTS
+======================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* =======================
+   PRICE ANIMATION (FIXED)
+======================= */
+const priceEl = document.getElementById("price");
+const target = parseInt(priceEl.dataset.price || "0");
+
+if (!isNaN(target) && target > 0) {
+    let current = 0;
+    const step = Math.ceil(target / 80);
+
+    const counter = setInterval(() => {
+        current += step;
+        if (current >= target) {
+            priceEl.innerText = target.toLocaleString("en-IN");
+            clearInterval(counter);
+        } else {
+            priceEl.innerText = current.toLocaleString("en-IN");
+        }
+    }, 20);
+} else {
+    priceEl.innerText = "—";
+}
+
+/* =======================
+   GAUGE CHART
+======================= */
+new Chart(document.getElementById("gaugeChart"), {
+    type: "doughnut",
+    data: {
+        datasets: [{
+            data: [{{ confidence }}, {{ 100 - confidence }}],
+            backgroundColor: ["#6366f1", "#e5e7eb"],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        cutout: "75%",
+        plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+        }
+    }
+});
+</script>
+
+{% endblock %}
