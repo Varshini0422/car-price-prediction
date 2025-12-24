@@ -66,8 +66,6 @@ Car_Price_Prediction/
 
 ## 🖼 Screenshots
 
-> 📌 Add these images inside `static/screenshots/` and update paths if needed
-
 ### 🔹 Landing Page
 ![Landing Page](static/screenshots/landing.png)
 
